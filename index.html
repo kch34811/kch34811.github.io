@@ -1,0 +1,281 @@
+<!doctype HTML>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Voice Synthesis Opinion Survey</title>
+  <!-- UIkit CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.16.1/dist/css/uikit.min.css" />
+
+  <!-- UIkit JS -->
+  <script src="https://cdn.jsdelivr.net/npm/uikit@3.16.1/dist/js/uikit.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/uikit@3.16.1/dist/js/uikit-icons.min.js"></script>
+
+  <script src="https://unpkg.com/wretch"></script>
+
+  <style>
+    .uk-fieldset label {
+      border: 1px solid;
+      padding: 14px 30px;
+      cursor: pointer;
+      display: inline-block;
+    }
+
+    .uk-fieldset label:hover {
+      background-color: #eee;
+    }
+
+    .uk-fieldset label:has(input:checked) {
+      background-color: #c2dcff;
+    }
+
+    .uk-table td {
+      padding-top: 0;
+      padding-bottom: 5px;
+    }
+
+  </style>
+</head>
+
+<body>
+  <div class="uk-container" style="padding-top: 30px; padding-bottom: 100px;">
+
+    <article class="uk-article">
+      <h1 class="uk-article-title">Voice Synthesis Opinion Survey</h1>
+      <p class="uk-article-meta"> 본 설문의 투표 결과는 과제연구의 실험 성능 평가에 사용될 예정입니다. 감사합니다.</a>
+      </p>
+
+      <p class="uk-text-lead">
+        안녕하세요. 다양한 기법으로 합성한 음성에 대한 여러분의 의견을 조사하고자 합니다. 아래의 설문지를 작성해주시면 감사하겠습니다. 모든 문항 답변에는 1~3분 가량 소요됩니다. 궁금하신 사항이
+        있으시면
+        <a href="mailto:kch3481@postech.ac.kr">kch3481@postech.ac.kr</a>로 연락주세요.
+      </p>
+
+      <div class="uk-alert-warning" uk-alert>
+        <p><span uk-icon="icon: warning"></span> &nbsp; 제출 완료 페이지가 보이기 전까지 내용이 저장되지 않습니다. 페이지를 닫지 않도록 주의해주세요.</p>
+      </div>
+
+      <h3>
+        자연스러움(Naturalness) 평가
+      </h3>
+
+      <p id="natnum">
+        ##NATNUM##개의 음성 합성 샘플을 듣고, 각 샘플에 대해 얼마나 사람 목소리같은지 "자연스러움"의 정도를 1~5점 사이로 선택해주세요.
+      </p>
+
+      <form>
+        <fieldset class="uk-fieldset">
+          <table class="uk-table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>음성</th>
+                <th>1점 : 아주 부자연스러움 ~ 5점 : 아주 자연스러움</th>
+              </tr>
+            </thead>
+            <tbody id="nattable">
+            </tbody>
+          </table>
+        </fieldset>
+      </form>
+
+      <h3>
+        유사도(Similarity) 평가
+      </h3>
+
+      <p id="simnum">
+        ##SIMNUM##개의 음성 합성 샘플을 듣고, 각 샘플이 상단에 제시된 기준 음성과 얼마나 동일 인물 같은지 "유사도"의 정도를 1~5점 사이로 선택해주세요. 알아들을 수 없는 옹알이가 나와도 실제
+        기준 음성의 사람이 옹알이를 한다고 했을 때 상상되는 느낌과 유사하다면 높은 점수를 주세요.
+      </p>
+
+      <form>
+        <fieldset class="uk-fieldset" id="simfield">
+        </fieldset>
+      </form>
+
+      <p>이상이 모든 설문 항목입니다. 응해주셔서 정말 감사합니다.</p>
+
+      <div class="uk-grid-small uk-child-width-auto" uk-grid>
+        <div>
+          <button id="submission" class="uk-button uk-button-primary">제출</button>
+        </div>
+        <div>
+          <p id="submission-status" style="display: none;">제출 중입니다. 잠시만 기다려주세요.</p>
+        </div>
+      </div>
+    </article>
+  </div>
+
+  <script>
+    const random_hex = Math.floor(Math.random() * 0x1000000).toString(16).padStart(6, "0");
+
+    const tr_template = `
+      <tr id="##NAME##">
+        <td style="vertical-align: middle;">##INDEX##</td>
+        <td>##AUDIO##</td>
+        <td>
+          <div class="uk-margin uk-child-width-auto">
+            <label><input class="uk-radio" type="radio" value="1" name="##NAME##" required="required"> 1</label>
+            <label><input class="uk-radio" type="radio" value="2" name="##NAME##"> 2</label>
+            <label><input class="uk-radio" type="radio" value="3" name="##NAME##"> 3</label>
+            <label><input class="uk-radio" type="radio" value="4" name="##NAME##"> 4</label>
+            <label><input class="uk-radio" type="radio" value="5" name="##NAME##"> 5</label>
+          </div>
+        </td>
+      </tr>
+    `;
+    const tre_template = `
+      <tr>
+        <td></td>
+        <td>##AUDIO##</td>
+        <td style="vertical-align: middle;">
+          <div class="uk-margin uk-child-width-auto uk-text-primary">
+            <i>기준 음성</i>
+          </div>
+        </td>
+      </tr>
+    `;
+    const audio_template = `
+      <audio controls>
+        <source src="##SRC##" type="audio/wav">
+      </audio>
+    `;
+    const sim_table_template = `
+      <table class="uk-table">
+        <thead>
+          <tr>
+            <th></th>
+            <th>음성</th>
+            <th>1점 : 아주 다름 ~ 5점 : 아주 닮음</th>
+          </tr>
+        </thead>
+        <tbody>
+          ##TRS##
+        </tbody>
+      </table>
+    `;
+
+    const isdev = window.location.hash === "#dev";
+
+    const langclass = {
+      "kr": "uk-label-danger",
+      "en": "uk-label-success",
+      "fr": "uk-label-primary",
+    };
+
+    // get ./data.json using wretch
+    (async () => {
+      const meta_data = await wretch(`./data.json?v=${Math.floor(Date.now() / 1000)}`).get().json();
+      const meta_keys = Object.keys(meta_data);
+      meta_keys.sort(() => Math.random() - 0.5);
+
+      const input_keys = [];
+
+      // add naturalness table
+      const nat_table = document.getElementById("nattable");
+      let nat_num_i = 0;
+      const nat_table_html = meta_keys.map((key, i) => {
+        if (key[0] !== "n") return "";
+        if (nat_num_i >= 30) {
+          return "";
+        }
+        nat_num_i += 1;
+        input_keys.push(key);
+        const audio_html = audio_template.replace("##SRC##", meta_data[key][0]) + `<span class="uk-label ${langclass[meta_data[key][1]]}">${meta_data[key][1].toUpperCase()}</span>` + (isdev ? `<span class="uk-label uk-label-warning">${meta_data[key][2]}</span>` : "");
+        return tr_template.replace(/##AUDIO##/g, audio_html).replace(/##NAME##/g, key).replace(/##INDEX##/g, nat_num_i);
+      }).join("");
+      nat_table.innerHTML = nat_table_html;
+      const nat_num = document.getElementById("natnum");
+      nat_num.innerHTML = nat_num.innerHTML.replace("##NATNUM##", nat_num_i);
+
+      // add similarity table
+      const sim_field = document.getElementById("simfield");
+      let sim_num_i = 0;
+      let sim_group_i = 0;
+      const sim_table_html = meta_keys.map((key, i) => {
+        if (key[0] !== "s") return "";
+        if (sim_group_i >= 6) {
+          return "";
+        }
+        sim_group_i += 1;
+        const gt_audio_html = audio_template.replace("##SRC##", meta_data[key][0]) + (isdev ? `<span class="uk-label ${langclass[meta_data[key][2]]}">${meta_data[key][2].toUpperCase()}</span><span class="uk-label uk-label-warning">${meta_data[key][3]}</span>` : "");
+        let trs_html = tre_template.replace(/##AUDIO##/g, gt_audio_html);
+        const ja = Array.from(Array(meta_data[key][1].length).keys());
+        ja.sort(() => Math.random() - 0.5);
+        for (let jq = 0; jq < meta_data[key][1].length; jq++) {
+          const j = ja[jq];
+          sim_num_i += 1;
+          const audio_html = audio_template.replace("##SRC##", meta_data[key][1][j][0]) + (isdev ? `<span class="uk-label uk-label-warning">${meta_data[key][1][j][1]}</span><span class="uk-label uk-label-warning">${meta_data[key][1][j][2]}</span>` : "");
+          const tr_html = tr_template.replace(/##AUDIO##/g, audio_html).replace(/##NAME##/g, key + "_" + j).replace(/##INDEX##/g, jq + 1);
+          trs_html += tr_html;
+          input_keys.push(key + "_" + j);
+        }
+        return sim_table_template.replace("##TRS##", trs_html);
+      }).join("");
+      sim_field.innerHTML = sim_table_html;
+      const sim_num = document.getElementById("simnum");
+      sim_num.innerHTML = sim_num.innerHTML.replace("##SIMNUM##", sim_num_i);
+
+      const get_value = (name) => {
+        const radios = document.getElementsByName(name);
+        for (let i = 0; i < radios.length; i++) {
+          if (radios[i].checked) {
+            return radios[i].value;
+          }
+        }
+        return undefined;
+      };
+
+      const submit_fn = () => {
+        for (let i = 0; i < input_keys.length; i++) {
+          const key = input_keys[i];
+          const value = get_value(key);
+          if (value === undefined) {
+            alert("모든 항목을 선택해주세요.");
+            return;
+          }
+        }
+
+        const submission_url = "https://script.google.com/macros/s/AKfycbxF7LAt3jgpnjyL4lt79sbzPjO4ZbDvQiyo_hBzJFIdd7PXPWEeVXJujB5nLASfvxCg/exec?gid=0";
+
+        
+        const data_json = input_keys.map((key, i) => {
+          const value = get_value(key);
+          return `${key}=${value}`;
+        }).join("&");
+
+        const status_p = document.getElementById("submission-status");
+        status_p.style.display = "block";
+        const status_b = document.getElementById("submission");
+        status_b.disabled = true;
+
+        // send JSON via POST using wretch
+        wretch(`${submission_url}&${data_json}&random_hex=${random_hex}`)
+          .get()
+          .res((json) => {
+            status_p.style.display = "none";
+            if (json.status === 200) {
+              window.onbeforeunload = null;
+              window.location.href = "./finish.html";
+            } else {
+              alert("제출 실패. 다시 시도해도 실패하면 페이지를 전체 스크린샷하여 kch3481@postech.ac.kr로 보내주세요.");
+              status_b.disabled = false;
+            }
+          }).catch(
+            (err) => {
+              console.log(err);
+              alert("제출 실패. 일부 AdBlock 혹은 PrivacyBadger에서 구글 스크립트 도메인이 차단되어 있을 수 있습니다. 계속해서 실패하면 페이지를 전체 스크린샷하여 kch3481@postech.ac.kr로 보내주세요.");
+              status_b.disabled = false;
+            }
+          );
+      };
+      document.getElementById("submission").addEventListener("click", submit_fn);
+    })();
+    window.onbeforeunload = function() {
+      return "페이지를 나가면 응답이 모두 삭제됩니다. 정말로 나가시겠습니까?";
+    };
+  </script>
+</body>
+
+</html>
