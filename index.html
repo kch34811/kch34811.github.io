@@ -12,6 +12,17 @@
             margin: 0;
             padding: 0;
         }
+        .banner {
+            background-color: #FF9800;
+            color: white;
+            padding: 15px 0;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            width: 100%;
+            box-sizing: border-box;
+            margin: 0;
+        }
         .container {
             width: 90%;
             margin: 0 auto;
@@ -19,15 +30,18 @@
         }
         .product-image {
             text-align: center;
+            margin-top: 20px;
         }
         .product-image img {
-            width: 300px;
+            width: 100%;
+            max-width: 600px;
             border-radius: 10px;
         }
         .product-description {
             margin-top: 20px;
             font-size: 16px;
             line-height: 1.6;
+            text-align: center;
         }
         .buy-button {
             display: block;
@@ -81,8 +95,12 @@
     </style>
 </head>
 <body>
+    <div class="banner">
+        가을이네 농장
+    </div>
+
     <div class="container">
-        <h1>포도 주문 예약</h1>
+        <h1 style="text-align: center;">포도 주문 예약</h1>
 
         <div class="product-image">
             <!-- 같은 폴더 내의 이미지 파일 경로 -->
@@ -161,6 +179,9 @@
 
         function showForm() {
             document.getElementById('reservation-form').style.display = 'block';
+            setTimeout(function() {
+                document.getElementById('reservation-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
         }
 
         document.getElementById('reservation-form').addEventListener('submit', function(event) {
