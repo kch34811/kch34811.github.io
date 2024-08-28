@@ -6,81 +6,161 @@
     <title>포도 주문 예약</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 90%;
+            margin: 0 auto;
+            padding-top: 20px;
+        }
+        .product-image {
+            text-align: center;
+        }
+        .product-image img {
+            width: 300px;
+            border-radius: 10px;
+        }
+        .product-description {
+            margin-top: 20px;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        .buy-button {
+            display: block;
+            width: 200px;
+            margin: 20px auto;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        .buy-button:hover {
+            background-color: #45a049;
+        }
+        #reservation-form {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+        button[type="submit"]:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
 <body>
-    <h1>포도 주문 예약</h1>
-    <form id="reservation-form">
-        <label for="name">이름:</label>
-        <input type="text" id="name" name="name" required>
+    <div class="container">
+        <h1>포도 주문 예약</h1>
 
-        <label for="phone">전화번호:</label>
-        <input type="text" id="phone" name="phone" required>
+        <div class="product-image">
+            <!-- 같은 폴더 내의 이미지 파일 경로 -->
+            <img src="grape.jpg" alt="포도">
+        </div>
 
-        <label for="sample6_postcode">우편번호:</label>
-        <input type="text" id="sample6_postcode" placeholder="우편번호" required>
-        <input type="button" onclick="sample6_execDaumPostcode()" value="우편번호 찾기"><br>
+        <div class="product-description">
+            <p>신선한 포도! 맛있고 당도가 높은 포도를 지금 예약하세요. 최상의 품질을 보장합니다.</p>
+            <p>주문 수량에 따라 가격이 다르게 책정됩니다. 주문 후 빠르게 배송해 드립니다.</p>
+        </div>
 
-        <label for="sample6_address">주소:</label>
-        <input type="text" id="sample6_address" placeholder="주소" required><br>
+        <a class="buy-button" onclick="showForm()">구매하기</a>
 
-        <label for="sample6_detailAddress">상세주소:</label>
-        <input type="text" id="sample6_detailAddress" placeholder="상세주소" required>
-        
-        <label for="sample6_extraAddress">참고항목:</label>
-        <input type="text" id="sample6_extraAddress" placeholder="참고항목"><br>
+        <form id="reservation-form">
+            <label for="name">이름:</label>
+            <input type="text" id="name" name="name" required>
 
-        <label for="quantity">주문 수량:</label>
-        <input type="number" id="quantity" name="quantity" required>
+            <label for="phone">전화번호:</label>
+            <input type="text" id="phone" name="phone" required>
 
-        <button type="submit">예약하기</button>
-    </form>
+            <label for="sample6_postcode">우편번호:</label>
+            <input type="text" id="sample6_postcode" placeholder="우편번호" required>
+            <input type="button" onclick="sample6_execDaumPostcode()" value="우편번호 찾기"><br>
+
+            <label for="sample6_address">주소:</label>
+            <input type="text" id="sample6_address" placeholder="주소" required><br>
+
+            <label for="sample6_detailAddress">상세주소:</label>
+            <input type="text" id="sample6_detailAddress" placeholder="상세주소" required>
+            
+            <label for="sample6_extraAddress">참고항목:</label>
+            <input type="text" id="sample6_extraAddress" placeholder="참고항목"><br>
+
+            <label for="quantity">주문 수량:</label>
+            <input type="number" id="quantity" name="quantity" required>
+
+            <button type="submit">예약하기</button>
+        </form>
+    </div>
+
     <script>
         function sample6_execDaumPostcode() {
             new daum.Postcode({
                 oncomplete: function(data) {
-                    // 팝업에서 검색결과 항목을 클릭했을때 실행할 코드를 작성하는 부분.
-
-                    // 각 주소의 노출 규칙에 따라 주소를 조합한다.
-                    // 내려오는 변수가 값이 없는 경우엔 공백('')값을 가지므로, 이를 참고하여 분기 한다.
                     var addr = ''; // 주소 변수
                     var extraAddr = ''; // 참고항목 변수
 
-                    //사용자가 선택한 주소 타입에 따라 해당 주소 값을 가져온다.
-                    if (data.userSelectedType === 'R') { // 사용자가 도로명 주소를 선택했을 경우
+                    if (data.userSelectedType === 'R') { 
                         addr = data.roadAddress;
-                    } else { // 사용자가 지번 주소를 선택했을 경우(J)
+                    } else { 
                         addr = data.jibunAddress;
                     }
 
-                    // 사용자가 선택한 주소가 도로명 타입일때 참고항목을 조합한다.
                     if(data.userSelectedType === 'R'){
-                        // 법정동명이 있을 경우 추가한다. (법정리는 제외)
-                        // 법정동의 경우 마지막 문자가 "동/로/가"로 끝난다.
                         if(data.bname !== '' && /[동|로|가]$/g.test(data.bname)){
                             extraAddr += data.bname;
                         }
-                        // 건물명이 있고, 공동주택일 경우 추가한다.
                         if(data.buildingName !== '' && data.apartment === 'Y'){
                             extraAddr += (extraAddr !== '' ? ', ' + data.buildingName : data.buildingName);
                         }
-                        // 표시할 참고항목이 있을 경우, 괄호까지 추가한 최종 문자열을 만든다.
                         if(extraAddr !== ''){
                             extraAddr = ' (' + extraAddr + ')';
                         }
-                        // 조합된 참고항목을 해당 필드에 넣는다.
                         document.getElementById("sample6_extraAddress").value = extraAddr;
                     
                     } else {
                         document.getElementById("sample6_extraAddress").value = '';
                     }
 
-                    // 우편번호와 주소 정보를 해당 필드에 넣는다.
                     document.getElementById('sample6_postcode').value = data.zonecode;
                     document.getElementById("sample6_address").value = addr;
-                    // 커서를 상세주소 필드로 이동한다.
                     document.getElementById("sample6_detailAddress").focus();
                 }
             }).open();
+        }
+
+        function showForm() {
+            document.getElementById('reservation-form').style.display = 'block';
         }
 
         document.getElementById('reservation-form').addEventListener('submit', function(event) {
