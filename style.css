@@ -92,7 +92,7 @@ body {
     width: 200px;
     margin: 20px auto;
     padding: 10px;
-    background-color: #4CAF50;
+    background-color: #503930;
     color: white;
     text-align: center;
     border-radius: 5px;
@@ -102,7 +102,7 @@ body {
 }
 
 .buy-button:hover {
-    background-color: #45a049;
+    background-color: #402d26;
 }
 
 #reservation-form {
@@ -130,7 +130,7 @@ input[type="text"], input[type="number"] {
 }
 
 button[type="submit"] {
-    background-color: #4CAF50;
+    background-color: #503930;
     color: white;
     padding: 10px;
     border: none;
@@ -141,5 +141,93 @@ button[type="submit"] {
 }
 
 button[type="submit"]:hover {
-    background-color: #45a049;
+    background-color: #402d26;
+}
+
+#reservation-form h2 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-size: 18px;
+    color: #333;
+    padding-bottom: 10px;
+}
+
+input[type="text"], input[type="number"], input[type="button"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-sizing: border-box;
+    font-size: 16px;
+}
+
+input[type="text"]::placeholder {
+    color: #aaa;
+}
+
+hr {
+    border: none;
+    border-top: 1px solid #ddd;
+    margin: 20px 0;
+}
+
+.same-as-order-label {
+    font-weight: normal;
+    display: block;
+    margin-bottom: 15px;
+}
+
+.order-summary {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+    margin-top: 10px;
+}
+
+.order-summary p {
+    margin: 5px 0;
+    font-size: 16px;
+}
+
+.order-summary strong {
+    font-size: 18px;
+}
+
+.address-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#sample6_postcode {
+    flex: 2;
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+.address-button {
+    flex: 1;
+    padding: 8px;
+    font-size: 14px;
+    background-color: #f0f0f0;
+    color: #333;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    cursor: pointer;
+    height: 40px;
+    box-sizing: border-box;
+}
+
+.address-button:hover {
+    background-color: #e0e0e0;
+}
+
+input[type="text"]::placeholder {
+    color: #aaa;
+    font-size: 16px;
 }

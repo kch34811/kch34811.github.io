@@ -28,47 +28,60 @@
         </div>
 
         <a class="buy-button" onclick="showForm()">구매하기</a>
-
+        
         <form id="reservation-form">
-            <label for="name">이름:</label>
-            <input type="text" id="name" name="name" required>
+            <h2>주문자 정보</h2>
+            <input type="text" id="order-name" name="order-name" placeholder="이름" required>
+    
+            <input type="text" id="order-phone" name="order-phone" placeholder="연락처" required>
+    
+            <hr>
+    
+            <h2>배송 정보</h2>
+            <label class="same-as-order-label">
+                <input type="checkbox" id="same-as-order"> 주문자 정보와 동일
+            </label>
+    
+            <input type="text" id="recipient-name" name="recipient-name" placeholder="수령인" required>
+    
+            <input type="text" id="recipient-phone" name="recipient-phone" placeholder="연락처" required>
 
-            <label for="phone">전화번호:</label>
-            <input type="text" id="phone" name="phone" required>
-
-            <label for="sample6_postcode">우편번호:</label>
-            <input type="text" id="sample6_postcode" placeholder="우편번호" required>
-            <input type="button" onclick="sample6_execDaumPostcode()" value="우편번호 찾기"><br>
-
-            <label for="sample6_address">주소:</label>
-            <input type="text" id="sample6_address" placeholder="주소" required><br>
-
-            <label for="sample6_detailAddress">상세주소:</label>
+            <div class="address-row">
+                <input type="text" id="sample6_postcode" placeholder="우편번호" required>
+                <input type="button" class="address-button" onclick="sample6_execDaumPostcode()" value="주소찾기">
+            </div>
+    
+            <input type="text" id="sample6_address" placeholder="주소" required>
+    
             <input type="text" id="sample6_detailAddress" placeholder="상세주소" required>
-            
-            <label for="sample6_extraAddress">참고항목:</label>
-            <input type="text" id="sample6_extraAddress" placeholder="참고항목"><br>
-
-            <label for="quantity">주문 수량:</label>
-            <input type="number" id="quantity" name="quantity" required>
-
+    
+            <hr>
+    
+            <h2>주문 요약</h2>
+            <div class="order-summary">
+                <p>상품가격: <span id="product-price">4,200원</span></p>
+                <p>배송비: <span id="shipping-fee">2,800원</span></p>
+                <p><strong>총 주문금액: <span id="total-price">7,000원</span></strong></p>
+            </div>
+    
             <button type="submit">예약하기</button>
         </form>
     </div>
 
     <script>
+        // 다음 우편번호 서비스 API를 사용하여 주소를 검색하고 입력 필드에 자동으로 채워줍니다.
         function sample6_execDaumPostcode() {
             new daum.Postcode({
                 oncomplete: function(data) {
                     var addr = ''; // 주소 변수
                     var extraAddr = ''; // 참고항목 변수
-
+    
                     if (data.userSelectedType === 'R') { 
                         addr = data.roadAddress;
                     } else { 
                         addr = data.jibunAddress;
                     }
-
+    
                     if(data.userSelectedType === 'R'){
                         if(data.bname !== '' && /[동|로|가]$/g.test(data.bname)){
                             extraAddr += data.bname;
@@ -84,36 +97,53 @@
                     } else {
                         document.getElementById("sample6_extraAddress").value = '';
                     }
-
+    
                     document.getElementById('sample6_postcode').value = data.zonecode;
                     document.getElementById("sample6_address").value = addr;
                     document.getElementById("sample6_detailAddress").focus();
                 }
             }).open();
         }
-
+    
+        // 구매하기 버튼을 눌렀을 때 주문 폼을 보여줍니다.
         function showForm() {
             document.getElementById('reservation-form').style.display = 'block';
             setTimeout(function() {
                 document.getElementById('reservation-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
             }, 100);
         }
-
+    
+        // 주문자 정보와 배송 정보가 동일할 경우 배송 정보를 자동으로 채워줍니다.
+        document.getElementById('same-as-order').addEventListener('change', function() {
+            if (this.checked) {
+                document.getElementById('recipient-name').value = document.getElementById('order-name').value;
+                document.getElementById('recipient-phone').value = document.getElementById('order-phone').value;
+            } else {
+                document.getElementById('recipient-name').value = '';
+                document.getElementById('recipient-phone').value = '';
+            }
+        });
+    
+        // 폼 제출 시 데이터를 서버로 전송합니다.
         document.getElementById('reservation-form').addEventListener('submit', function(event) {
             event.preventDefault();
-            const name = document.getElementById('name').value;
-            const phone = document.getElementById('phone').value;
+            const name = document.getElementById('order-name').value;
+            const phone = document.getElementById('order-phone').value;
+            const recipientName = document.getElementById('recipient-name').value;
+            const recipientPhone = document.getElementById('recipient-phone').value;
             const postcode = document.getElementById('sample6_postcode').value;
             const address = document.getElementById('sample6_address').value;
             const detailAddress = document.getElementById('sample6_detailAddress').value;
             const extraAddress = document.getElementById('sample6_extraAddress').value;
             const quantity = document.getElementById('quantity').value;
-
+    
             fetch('https://script.google.com/macros/s/AKfycbxF7LAt3jgpnjyL4lt79sbzPjO4ZbDvQiyo_hBzJFIdd7PXPWEeVXJujB5nLASfvxCg/exec', {
                 method: 'POST',
                 body: JSON.stringify({
                     name, 
                     phone, 
+                    recipientName,
+                    recipientPhone,
                     postcode, 
                     address, 
                     detailAddress, 
@@ -137,6 +167,6 @@
                 alert('예약에 실패했습니다. 다시 시도해 주세요.');
             });
         });
-    </script>
+    </script>    
 </body>
 </html>
