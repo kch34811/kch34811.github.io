@@ -8,18 +8,23 @@
     <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 </head>
 <body>
+    <!-- 상단의 가을이네 농장 배너 복원 -->
     <div class="banner">
         <img src="img/dog.png" alt="Shine" class="banner-dog">
         가을이네 농장
         <img src="img/shine.png" alt="Shine" class="banner-shine">
     </div>
     
-
     <div class="container">
-
         <div class="product-image">
-            <!-- 같은 폴더 내의 이미지 파일 경로 -->
-            <img src="img/dogAndShine.jpg" alt="포도">
+            <div class="image-carousel">
+                <img src="img/dogAndShine.jpg" alt="포도">
+                <img src="img/dogAndShine.jpg" alt="포도1">
+                <img src="img/dogAndShine.jpg" alt="포도2">
+                <img src="img/dogAndShine.jpg" alt="포도3">
+                <img src="img/dogAndShine.jpg" alt="포도4">
+                <img src="img/dogAndShine.jpg" alt="포도5">
+            </div>
         </div>
 
         <div class="product-description">
@@ -27,13 +32,16 @@
             <p>주문 수량에 따라 가격이 다르게 책정됩니다. 주문 후 빠르게 배송해 드립니다.</p>
         </div>
 
-        <a class="buy-button" onclick="showForm()">구매하기</a>
-        
+        <!-- 구매하기 배너 추가 -->
+        <div class="buy-banner">
+            <a class="buy-button" onclick="showForm()">구매하기</a>
+        </div>
+
         <form id="reservation-form">
             <h2>주문자 정보</h2>
             <input type="text" id="order-name" name="order-name" placeholder="이름" required>
     
-            <input type="text" id="order-phone" name="order-phone" placeholder="연락처" required>
+            <input type="tel" id="order-phone" name="order-phone" placeholder="연락처" required>
     
             <hr>
     
@@ -44,7 +52,7 @@
     
             <input type="text" id="recipient-name" name="recipient-name" placeholder="수령인" required>
     
-            <input type="text" id="recipient-phone" name="recipient-phone" placeholder="연락처" required>
+            <input type="tel" id="recipient-phone" name="recipient-phone" placeholder="연락처" required>
 
             <div class="address-row">
                 <input type="text" id="sample6_postcode" placeholder="우편번호" required>
@@ -68,105 +76,6 @@
         </form>
     </div>
 
-    <script>
-        // 다음 우편번호 서비스 API를 사용하여 주소를 검색하고 입력 필드에 자동으로 채워줍니다.
-        function sample6_execDaumPostcode() {
-            new daum.Postcode({
-                oncomplete: function(data) {
-                    var addr = ''; // 주소 변수
-                    var extraAddr = ''; // 참고항목 변수
-    
-                    if (data.userSelectedType === 'R') { 
-                        addr = data.roadAddress;
-                    } else { 
-                        addr = data.jibunAddress;
-                    }
-    
-                    if(data.userSelectedType === 'R'){
-                        if(data.bname !== '' && /[동|로|가]$/g.test(data.bname)){
-                            extraAddr += data.bname;
-                        }
-                        if(data.buildingName !== '' && data.apartment === 'Y'){
-                            extraAddr += (extraAddr !== '' ? ', ' + data.buildingName : data.buildingName);
-                        }
-                        if(extraAddr !== ''){
-                            extraAddr = ' (' + extraAddr + ')';
-                        }
-                        document.getElementById("sample6_extraAddress").value = extraAddr;
-                    
-                    } else {
-                        document.getElementById("sample6_extraAddress").value = '';
-                    }
-    
-                    document.getElementById('sample6_postcode').value = data.zonecode;
-                    document.getElementById("sample6_address").value = addr;
-                    document.getElementById("sample6_detailAddress").focus();
-                }
-            }).open();
-        }
-    
-        // 구매하기 버튼을 눌렀을 때 주문 폼을 보여줍니다.
-        function showForm() {
-            document.getElementById('reservation-form').style.display = 'block';
-            setTimeout(function() {
-                document.getElementById('reservation-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }, 100);
-        }
-    
-        // 주문자 정보와 배송 정보가 동일할 경우 배송 정보를 자동으로 채워줍니다.
-        document.getElementById('same-as-order').addEventListener('change', function() {
-            if (this.checked) {
-                document.getElementById('recipient-name').value = document.getElementById('order-name').value;
-                document.getElementById('recipient-phone').value = document.getElementById('order-phone').value;
-            } else {
-                document.getElementById('recipient-name').value = '';
-                document.getElementById('recipient-phone').value = '';
-            }
-        });
-    
-        // 폼 제출 시 데이터를 서버로 전송합니다.
-        document.getElementById('reservation-form').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const name = document.getElementById('order-name').value;
-            const phone = document.getElementById('order-phone').value;
-            const recipientName = document.getElementById('recipient-name').value;
-            const recipientPhone = document.getElementById('recipient-phone').value;
-            const postcode = document.getElementById('sample6_postcode').value;
-            const address = document.getElementById('sample6_address').value;
-            const detailAddress = document.getElementById('sample6_detailAddress').value;
-            const extraAddress = document.getElementById('sample6_extraAddress').value;
-            const quantity = document.getElementById('quantity').value;
-    
-            fetch('https://script.google.com/macros/s/AKfycbxF7LAt3jgpnjyL4lt79sbzPjO4ZbDvQiyo_hBzJFIdd7PXPWEeVXJujB5nLASfvxCg/exec', {
-                method: 'POST',
-                body: JSON.stringify({
-                    name, 
-                    phone, 
-                    recipientName,
-                    recipientPhone,
-                    postcode, 
-                    address, 
-                    detailAddress, 
-                    extraAddress, 
-                    quantity
-                }),
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('예약이 성공적으로 완료되었습니다.');
-                } else {
-                    alert('예약에 실패했습니다. 다시 시도해 주세요.');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('예약에 실패했습니다. 다시 시도해 주세요.');
-            });
-        });
-    </script>    
+    <script src="script.js"></script>  
 </body>
 </html>
