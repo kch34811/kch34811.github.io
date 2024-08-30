@@ -5,12 +5,14 @@ function sample6_execDaumPostcode() {
             var addr = ''; // 주소 변수
             var extraAddr = ''; // 참고항목 변수
 
+            // 사용자가 선택한 주소 유형에 따라 도로명 주소와 지번 주소를 구분합니다.
             if (data.userSelectedType === 'R') { 
                 addr = data.roadAddress;
             } else { 
                 addr = data.jibunAddress;
             }
 
+            // 참고항목을 추가로 작성합니다. (예: 아파트 명 등)
             if(data.userSelectedType === 'R'){
                 if(data.bname !== '' && /[동|로|가]$/g.test(data.bname)){
                     extraAddr += data.bname;
@@ -21,14 +23,14 @@ function sample6_execDaumPostcode() {
                 if(extraAddr !== ''){
                     extraAddr = ' (' + extraAddr + ')';
                 }
-                document.getElementById("sample6_extraAddress").value = extraAddr;
-            
-            } else {
-                document.getElementById("sample6_extraAddress").value = '';
+                addr += extraAddr; // 참고항목을 주소에 추가합니다.
             }
 
+            // 우편번호와 주소 정보를 해당 필드에 입력합니다.
             document.getElementById('sample6_postcode').value = data.zonecode;
             document.getElementById("sample6_address").value = addr;
+            
+            // 상세주소 필드로 포커스를 이동합니다.
             document.getElementById("sample6_detailAddress").focus();
         }
     }).open();
