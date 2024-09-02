@@ -1,56 +1,96 @@
-// 이미지 앨범과 페이지 인디케이터 동작 구현
-const images = document.querySelectorAll('.image-album img');
+// 이미지 슬라이더와 페이지 인디케이터 동작 구현
+const sliderWrapper = document.querySelector('.slider-wrapper');
+const images = document.querySelectorAll('.slider-wrapper img');
 const dots = document.querySelectorAll('.dot');
 const leftArrow = document.querySelector('.left-arrow');
 const rightArrow = document.querySelector('.right-arrow');
 let currentIndex = 0;
+let isTransitioning = false;
+
+function updateSliderPosition() {
+    sliderWrapper.style.transform = `translateX(-${currentIndex * 100}%)`;
+}
 
 function showImage(index) {
-    images.forEach((img, i) => {
-        img.classList.toggle('active', i === index);
-        dots[i].classList.toggle('active', i === index);
+    currentIndex = index;
+    updateSliderPosition();
+    dots.forEach((dot, i) => {
+        dot.classList.toggle('active', i === currentIndex);
     });
 }
 
 function nextImage() {
+    if (isTransitioning) return;
+    isTransitioning = true;
     currentIndex = (currentIndex + 1) % images.length;
-    showImage(currentIndex);
+    updateSliderPosition();
+    dots.forEach((dot, i) => {
+        dot.classList.toggle('active', i === currentIndex);
+    });
+    sliderWrapper.addEventListener('transitionend', () => {
+        isTransitioning = false;
+    }, { once: true });
 }
 
 function prevImage() {
+    if (isTransitioning) return;
+    isTransitioning = true;
     currentIndex = (currentIndex - 1 + images.length) % images.length;
-    showImage(currentIndex);
+    updateSliderPosition();
+    dots.forEach((dot, i) => {
+        dot.classList.toggle('active', i === currentIndex);
+    });
+    sliderWrapper.addEventListener('transitionend', () => {
+        isTransitioning = false;
+    }, { once: true });
 }
 
 dots.forEach((dot, index) => {
     dot.addEventListener('click', () => {
         currentIndex = index;
-        showImage(index);
+        updateSliderPosition();
+        dots.forEach((dot, i) => {
+            dot.classList.toggle('active', i === currentIndex);
+        });
     });
 });
 
 rightArrow.addEventListener('click', nextImage);
 leftArrow.addEventListener('click', prevImage);
 
-// 기본 이미지 표시
-showImage(currentIndex);
-
-// 모바일에서 터치로 슬라이드 넘기기 구현
+// 모바일에서 터치 슬라이드를 통해 이미지 넘기기
 let startX = 0;
-let endX = 0;
+let isDragging = false;
 
-document.querySelector('.image-album').addEventListener('touchstart', (e) => {
+sliderWrapper.addEventListener('touchstart', (e) => {
     startX = e.touches[0].clientX;
+    isDragging = true;
+    sliderWrapper.style.transition = 'none';
 });
 
-document.querySelector('.image-album').addEventListener('touchend', (e) => {
-    endX = e.changedTouches[0].clientX;
-    if (startX > endX + 50) {
+sliderWrapper.addEventListener('touchmove', (e) => {
+    if (!isDragging) return;
+    const currentX = e.touches[0].clientX;
+    const moveX = currentX - startX;
+    sliderWrapper.style.transform = `translateX(calc(-${currentIndex * 100}% + ${moveX}px))`;
+});
+
+sliderWrapper.addEventListener('touchend', (e) => {
+    isDragging = false;
+    sliderWrapper.style.transition = 'transform 0.5s ease-in-out';
+    const endX = e.changedTouches[0].clientX;
+    const diffX = startX - endX;
+    if (diffX > 50) {
         nextImage();
-    } else if (startX < endX - 50) {
+    } else if (diffX < -50) {
         prevImage();
+    } else {
+        updateSliderPosition();
     }
 });
+
+// 기본 이미지 표시
+updateSliderPosition();
 
 // 다음 우편번호 서비스 API를 사용하여 주소를 검색하고 입력 필드에 자동으로 채워줍니다.
 function sample6_execDaumPostcode() {

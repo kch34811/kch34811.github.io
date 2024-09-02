@@ -25,11 +25,10 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    overflow-x: hidden; /* 페이지 좌우 이동 방지 */
 }
 
 .container {
-    width: 100%;
+    width: 90%;
     max-width: 800px;
     margin: 0 auto;
     padding-top: 20px;
@@ -99,8 +98,8 @@ body {
     font-weight: bold;
 }
 
-/* 상품 이미지 앨범 스타일 */
-.image-album {
+/* 상품 이미지 슬라이더 스타일 */
+.image-slider {
     position: relative;
     width: 100%;
     max-width: 600px;
@@ -108,16 +107,14 @@ body {
     overflow: hidden;
 }
 
-.image-album img {
-    width: 100%;
-    height: auto;
-    display: none;
-    transition: opacity 0.5s ease;
+.slider-wrapper {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
 }
 
-.image-album img.active {
-    display: block;
-    opacity: 1;
+.slider-wrapper img {
+    width: 100%;
+    flex-shrink: 0;
 }
 
 .arrow {
@@ -128,12 +125,11 @@ body {
     color: #503930;
     cursor: pointer;
     user-select: none;
-    opacity: 0;
-    transition: opacity 0.3s ease;
+    display: none; /* 처음에 화살표를 숨깁니다. */
 }
 
-.image-album:hover .arrow {
-    opacity: 1;
+.image-slider:hover .arrow {
+    display: block; /* 마우스를 올리면 화살표가 나타납니다. */
 }
 
 .left-arrow {
@@ -145,17 +141,19 @@ body {
 }
 
 .indicators {
+    text-align: center;
+    margin-top: 10px;
     position: absolute;
     bottom: 10px;
     left: 50%;
     transform: translateX(-50%);
-    display: flex;
-    gap: 5px;
 }
 
 .dot {
+    display: inline-block;
     width: 10px;
     height: 10px;
+    margin: 0 5px;
     background-color: #ddd;
     border-radius: 50%;
     cursor: pointer;
