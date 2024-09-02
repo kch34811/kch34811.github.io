@@ -1,3 +1,26 @@
+// 이미지 앨범 기능
+const images = document.querySelectorAll('.image-album img');
+const dots = document.querySelectorAll('.dot');
+let currentImageIndex = 0;
+
+function updateAlbum(index) {
+    images.forEach((img, i) => {
+        img.classList.remove('active');
+        dots[i].classList.remove('active');
+        if (i === index) {
+            img.classList.add('active');
+            dots[i].classList.add('active');
+        }
+    });
+}
+
+images.forEach((img, index) => {
+    img.addEventListener('mouseover', () => {
+        currentImageIndex = index;
+        updateAlbum(currentImageIndex);
+    });
+});
+
 // 다음 우편번호 서비스 API를 사용하여 주소를 검색하고 입력 필드에 자동으로 채워줍니다.
 function sample6_execDaumPostcode() {
     new daum.Postcode({
