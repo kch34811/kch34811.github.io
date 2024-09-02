@@ -1,24 +1,54 @@
-// 이미지 앨범 기능
+// 이미지 앨범과 페이지 인디케이터 동작 구현
 const images = document.querySelectorAll('.image-album img');
 const dots = document.querySelectorAll('.dot');
-let currentImageIndex = 0;
+const leftArrow = document.querySelector('.left-arrow');
+const rightArrow = document.querySelector('.right-arrow');
+let currentIndex = 0;
 
-function updateAlbum(index) {
+function showImage(index) {
     images.forEach((img, i) => {
-        img.classList.remove('active');
-        dots[i].classList.remove('active');
-        if (i === index) {
-            img.classList.add('active');
-            dots[i].classList.add('active');
-        }
+        img.classList.toggle('active', i === index);
+        dots[i].classList.toggle('active', i === index);
     });
 }
 
-images.forEach((img, index) => {
-    img.addEventListener('mouseover', () => {
-        currentImageIndex = index;
-        updateAlbum(currentImageIndex);
+function nextImage() {
+    currentIndex = (currentIndex + 1) % images.length;
+    showImage(currentIndex);
+}
+
+function prevImage() {
+    currentIndex = (currentIndex - 1 + images.length) % images.length;
+    showImage(currentIndex);
+}
+
+dots.forEach((dot, index) => {
+    dot.addEventListener('click', () => {
+        currentIndex = index;
+        showImage(index);
     });
+});
+
+rightArrow.addEventListener('click', nextImage);
+leftArrow.addEventListener('click', prevImage);
+
+// 기본 이미지 표시
+showImage(currentIndex);
+
+// 터치 이벤트를 감지하여 모바일에서 이미지를 넘기는 기능
+let startX = 0;
+
+document.querySelector('.image-album').addEventListener('touchstart', (e) => {
+    startX = e.touches[0].clientX;
+});
+
+document.querySelector('.image-album').addEventListener('touchend', (e) => {
+    const endX = e.changedTouches[0].clientX;
+    if (startX > endX + 50) {
+        nextImage(); // 왼쪽으로 슬라이드
+    } else if (startX < endX - 50) {
+        prevImage(); // 오른쪽으로 슬라이드
+    }
 });
 
 // 다음 우편번호 서비스 API를 사용하여 주소를 검색하고 입력 필드에 자동으로 채워줍니다.

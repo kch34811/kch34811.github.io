@@ -28,7 +28,7 @@ body {
 }
 
 .container {
-    width: 100%;
+    width: 90%;
     max-width: 800px;
     margin: 0 auto;
     padding-top: 20px;
@@ -100,18 +100,19 @@ body {
 
 /* 상품 이미지 앨범 스타일 */
 .image-album {
+    position: relative;
     width: 100%;
-    display: flex;
-    justify-content: center;
+    max-width: 600px;
+    margin: 0 auto;
     overflow: hidden;
 }
 
 .image-album img {
     width: 100%;
     max-width: 600px;
-    border-radius: 10px;
     display: none;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.5s ease-in-out;
+    opacity: 0;
 }
 
 .image-album img.active {
@@ -119,21 +120,46 @@ body {
     opacity: 1;
 }
 
-/* 페이지 인디케이터 스타일 */
-.indicator {
-    display: flex;
-    justify-content: center;
+.arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 2rem;
+    color: #503930;
+    cursor: pointer;
+    user-select: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.image-album:hover .arrow {
+    opacity: 1;
+}
+
+.left-arrow {
+    left: 10px;
+}
+
+.right-arrow {
+    right: 10px;
+}
+
+.indicators {
+    text-align: center;
     margin-top: 10px;
+    position: absolute;
+    bottom: 15px;
+    width: 100%;
 }
 
 .dot {
-    height: 8px;
-    width: 8px;
+    display: inline-block;
+    width: 10px;
+    height: 10px;
     margin: 0 5px;
     background-color: #ddd;
     border-radius: 50%;
-    display: inline-block;
-    transition: background-color 0.3s ease;
+    cursor: pointer;
 }
 
 .dot.active {
