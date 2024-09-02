@@ -25,10 +25,11 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    overflow-x: hidden; /* 페이지 좌우 이동 방지 */
 }
 
 .container {
-    width: 90%;
+    width: 100%;
     max-width: 800px;
     margin: 0 auto;
     padding-top: 20px;
@@ -109,10 +110,9 @@ body {
 
 .image-album img {
     width: 100%;
-    max-width: 600px;
+    height: auto;
     display: none;
-    transition: opacity 0.5s ease-in-out;
-    opacity: 0;
+    transition: opacity 0.5s ease;
 }
 
 .image-album img.active {
@@ -129,7 +129,7 @@ body {
     cursor: pointer;
     user-select: none;
     opacity: 0;
-    transition: opacity 0.3s;
+    transition: opacity 0.3s ease;
 }
 
 .image-album:hover .arrow {
@@ -145,18 +145,17 @@ body {
 }
 
 .indicators {
-    text-align: center;
-    margin-top: 10px;
     position: absolute;
-    bottom: 15px;
-    width: 100%;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 5px;
 }
 
 .dot {
-    display: inline-block;
     width: 10px;
     height: 10px;
-    margin: 0 5px;
     background-color: #ddd;
     border-radius: 50%;
     cursor: pointer;

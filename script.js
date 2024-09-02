@@ -35,19 +35,20 @@ leftArrow.addEventListener('click', prevImage);
 // 기본 이미지 표시
 showImage(currentIndex);
 
-// 터치 이벤트를 감지하여 모바일에서 이미지를 넘기는 기능
+// 모바일에서 터치로 슬라이드 넘기기 구현
 let startX = 0;
+let endX = 0;
 
 document.querySelector('.image-album').addEventListener('touchstart', (e) => {
     startX = e.touches[0].clientX;
 });
 
 document.querySelector('.image-album').addEventListener('touchend', (e) => {
-    const endX = e.changedTouches[0].clientX;
+    endX = e.changedTouches[0].clientX;
     if (startX > endX + 50) {
-        nextImage(); // 왼쪽으로 슬라이드
+        nextImage();
     } else if (startX < endX - 50) {
-        prevImage(); // 오른쪽으로 슬라이드
+        prevImage();
     }
 });
 
