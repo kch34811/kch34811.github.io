@@ -4,7 +4,7 @@ const images = document.querySelectorAll('.slider-wrapper img');
 const dots = document.querySelectorAll('.dot');
 const leftArrow = document.querySelector('.left-arrow');
 const rightArrow = document.querySelector('.right-arrow');
-let currentIndex = 0;
+let currentIndex = 1;
 let isTransitioning = false;
 
 function updateSliderPosition() {
@@ -12,46 +12,40 @@ function updateSliderPosition() {
 }
 
 function showImage(index) {
+    if (isTransitioning) return;
+    isTransitioning = true;
+    sliderWrapper.style.transition = 'transform 0.5s ease-in-out';
     currentIndex = index;
     updateSliderPosition();
-    dots.forEach((dot, i) => {
-        dot.classList.toggle('active', i === currentIndex);
-    });
+    sliderWrapper.addEventListener('transitionend', () => {
+        if (currentIndex === 0) {
+            sliderWrapper.style.transition = 'none';
+            currentIndex = images.length - 2; // 마지막 이미지로 점프
+            updateSliderPosition();
+        }
+        if (currentIndex === images.length - 1) {
+            sliderWrapper.style.transition = 'none';
+            currentIndex = 1; // 첫 번째 이미지로 점프
+            updateSliderPosition();
+        }
+        dots.forEach((dot, i) => {
+            dot.classList.toggle('active', i === currentIndex - 1);
+        });
+        isTransitioning = false;
+    }, { once: true });
 }
 
 function nextImage() {
-    if (isTransitioning) return;
-    isTransitioning = true;
-    currentIndex = (currentIndex + 1) % images.length;
-    updateSliderPosition();
-    dots.forEach((dot, i) => {
-        dot.classList.toggle('active', i === currentIndex);
-    });
-    sliderWrapper.addEventListener('transitionend', () => {
-        isTransitioning = false;
-    }, { once: true });
+    showImage(currentIndex + 1);
 }
 
 function prevImage() {
-    if (isTransitioning) return;
-    isTransitioning = true;
-    currentIndex = (currentIndex - 1 + images.length) % images.length;
-    updateSliderPosition();
-    dots.forEach((dot, i) => {
-        dot.classList.toggle('active', i === currentIndex);
-    });
-    sliderWrapper.addEventListener('transitionend', () => {
-        isTransitioning = false;
-    }, { once: true });
+    showImage(currentIndex - 1);
 }
 
 dots.forEach((dot, index) => {
     dot.addEventListener('click', () => {
-        currentIndex = index;
-        updateSliderPosition();
-        dots.forEach((dot, i) => {
-            dot.classList.toggle('active', i === currentIndex);
-        });
+        showImage(index + 1);
     });
 });
 
