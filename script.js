@@ -10,6 +10,8 @@ let isDragging = false;
 let currentTranslate = 0;
 let prevTranslate = 0;
 let animationID = 0;
+const threshold = 50;  // 슬라이드 동작을 위한 최소 이동 거리
+const totalSlides = images.length - 2;  // 복제된 슬라이드 제외
 
 function updateSliderPosition() {
     sliderWrapper.style.transform = `translateX(-${currentIndex * 100}%)`;
@@ -24,12 +26,12 @@ function showImage(index) {
     sliderWrapper.addEventListener('transitionend', () => {
         if (currentIndex === 0) {
             sliderWrapper.style.transition = 'none';
-            currentIndex = images.length - 2; // 마지막 이미지로 점프
+            currentIndex = totalSlides;
             updateSliderPosition();
         }
         if (currentIndex === images.length - 1) {
             sliderWrapper.style.transition = 'none';
-            currentIndex = 1; // 첫 번째 이미지로 점프
+            currentIndex = 1;
             updateSliderPosition();
         }
         dots.forEach((dot, i) => {
@@ -40,11 +42,15 @@ function showImage(index) {
 }
 
 function nextImage() {
-    showImage(currentIndex + 1);
+    if (currentIndex < images.length - 1) {
+        showImage(currentIndex + 1);
+    }
 }
 
 function prevImage() {
-    showImage(currentIndex - 1);
+    if (currentIndex > 0) {
+        showImage(currentIndex - 1);
+    }
 }
 
 dots.forEach((dot, index) => {
@@ -63,7 +69,7 @@ sliderWrapper.addEventListener('pointercancel', touchEnd);
 sliderWrapper.addEventListener('pointerleave', touchEnd);
 
 function touchStart(event) {
-    startX = event.clientX;
+    startX = event.clientX || event.touches[0].clientX;
     isDragging = true;
     sliderWrapper.style.transition = 'none';
     prevTranslate = currentTranslate;
@@ -72,20 +78,20 @@ function touchStart(event) {
 
 function touchMove(event) {
     if (!isDragging) return;
-    const currentX = event.clientX;
+    const currentX = event.clientX || event.touches[0].clientX;
     const moveX = currentX - startX;
     currentTranslate = prevTranslate + moveX;
     sliderWrapper.style.transform = `translateX(${currentTranslate}px)`;
 }
 
-function touchEnd(event) {
+function touchEnd() {
     cancelAnimationFrame(animationID);
     isDragging = false;
     const movedBy = currentTranslate - prevTranslate;
     
-    if (movedBy < -50 && currentIndex < images.length - 1) {
+    if (movedBy < -threshold && currentIndex < images.length - 1) {
         nextImage();
-    } else if (movedBy > 50 && currentIndex > 0) {
+    } else if (movedBy > threshold && currentIndex > 0) {
         prevImage();
     } else {
         updateSliderPosition();
@@ -97,7 +103,7 @@ function animation() {
     if (isDragging) requestAnimationFrame(animation);
 }
 
-// 기본 이미지 표시
+// 초기 슬라이더 위치 설정
 updateSliderPosition();
 
 // 다음 우편번호 서비스 API를 사용하여 주소를 검색하고 입력 필드에 자동으로 채워줍니다.
