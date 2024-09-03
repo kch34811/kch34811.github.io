@@ -1,4 +1,3 @@
-// 이미지 슬라이더와 페이지 인디케이터 동작 구현
 const sliderWrapper = document.querySelector('.slider-wrapper');
 const images = document.querySelectorAll('.slider-wrapper img');
 const dots = document.querySelectorAll('.dot');
@@ -56,29 +55,36 @@ leftArrow.addEventListener('click', prevImage);
 let startX = 0;
 let isDragging = false;
 
-sliderWrapper.addEventListener('touchstart', (e) => {
-    startX = e.touches[0].clientX;
+sliderWrapper.addEventListener('pointerdown', (e) => {
+    startX = e.clientX;
     isDragging = true;
     sliderWrapper.style.transition = 'none';
 });
 
-sliderWrapper.addEventListener('touchmove', (e) => {
+sliderWrapper.addEventListener('pointermove', (e) => {
     if (!isDragging) return;
-    const currentX = e.touches[0].clientX;
+    const currentX = e.clientX;
     const moveX = currentX - startX;
     sliderWrapper.style.transform = `translateX(calc(-${currentIndex * 100}% + ${moveX}px))`;
 });
 
-sliderWrapper.addEventListener('touchend', (e) => {
+sliderWrapper.addEventListener('pointerup', (e) => {
     isDragging = false;
     sliderWrapper.style.transition = 'transform 0.5s ease-in-out';
-    const endX = e.changedTouches[0].clientX;
+    const endX = e.clientX;
     const diffX = startX - endX;
     if (diffX > 50) {
         nextImage();
     } else if (diffX < -50) {
         prevImage();
     } else {
+        updateSliderPosition();
+    }
+});
+
+sliderWrapper.addEventListener('pointerleave', () => {
+    if (isDragging) {
+        isDragging = false;
         updateSliderPosition();
     }
 });
