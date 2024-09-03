@@ -5,6 +5,11 @@ const leftArrow = document.querySelector('.left-arrow');
 const rightArrow = document.querySelector('.right-arrow');
 let currentIndex = 1;
 let isTransitioning = false;
+let startX = 0;
+let isDragging = false;
+let currentTranslate = 0;
+let prevTranslate = 0;
+let animationID = 0;
 
 function updateSliderPosition() {
     sliderWrapper.style.transform = `translateX(-${currentIndex * 100}%)`;
@@ -13,8 +18,8 @@ function updateSliderPosition() {
 function showImage(index) {
     if (isTransitioning) return;
     isTransitioning = true;
-    sliderWrapper.style.transition = 'transform 0.5s ease-in-out';
     currentIndex = index;
+    sliderWrapper.style.transition = 'transform 0.5s ease-in-out';
     updateSliderPosition();
     sliderWrapper.addEventListener('transitionend', () => {
         if (currentIndex === 0) {
@@ -51,43 +56,46 @@ dots.forEach((dot, index) => {
 rightArrow.addEventListener('click', nextImage);
 leftArrow.addEventListener('click', prevImage);
 
-// 모바일에서 터치 슬라이드를 통해 이미지 넘기기
-let startX = 0;
-let isDragging = false;
+sliderWrapper.addEventListener('pointerdown', touchStart);
+sliderWrapper.addEventListener('pointermove', touchMove);
+sliderWrapper.addEventListener('pointerup', touchEnd);
+sliderWrapper.addEventListener('pointercancel', touchEnd);
+sliderWrapper.addEventListener('pointerleave', touchEnd);
 
-sliderWrapper.addEventListener('pointerdown', (e) => {
-    startX = e.clientX;
+function touchStart(event) {
+    startX = event.clientX;
     isDragging = true;
     sliderWrapper.style.transition = 'none';
-});
+    prevTranslate = currentTranslate;
+    animationID = requestAnimationFrame(animation);
+}
 
-sliderWrapper.addEventListener('pointermove', (e) => {
+function touchMove(event) {
     if (!isDragging) return;
-    const currentX = e.clientX;
+    const currentX = event.clientX;
     const moveX = currentX - startX;
-    sliderWrapper.style.transform = `translateX(calc(-${currentIndex * 100}% + ${moveX}px))`;
-});
+    currentTranslate = prevTranslate + moveX;
+    sliderWrapper.style.transform = `translateX(${currentTranslate}px)`;
+}
 
-sliderWrapper.addEventListener('pointerup', (e) => {
+function touchEnd(event) {
+    cancelAnimationFrame(animationID);
     isDragging = false;
-    sliderWrapper.style.transition = 'transform 0.5s ease-in-out';
-    const endX = e.clientX;
-    const diffX = startX - endX;
-    if (diffX > 50) {
+    const movedBy = currentTranslate - prevTranslate;
+    
+    if (movedBy < -50 && currentIndex < images.length - 1) {
         nextImage();
-    } else if (diffX < -50) {
+    } else if (movedBy > 50 && currentIndex > 0) {
         prevImage();
     } else {
         updateSliderPosition();
     }
-});
+}
 
-sliderWrapper.addEventListener('pointerleave', () => {
-    if (isDragging) {
-        isDragging = false;
-        updateSliderPosition();
-    }
-});
+function animation() {
+    sliderWrapper.style.transform = `translateX(${currentTranslate}px)`;
+    if (isDragging) requestAnimationFrame(animation);
+}
 
 // 기본 이미지 표시
 updateSliderPosition();
