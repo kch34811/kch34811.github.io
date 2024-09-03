@@ -1,109 +1,59 @@
 const sliderWrapper = document.querySelector('.slider-wrapper');
 const images = document.querySelectorAll('.slider-wrapper img');
 const dots = document.querySelectorAll('.dot');
-const leftArrow = document.querySelector('.left-arrow');
-const rightArrow = document.querySelector('.right-arrow');
 let currentIndex = 1;
-let isTransitioning = false;
 let startX = 0;
 let isDragging = false;
-let currentTranslate = 0;
-let prevTranslate = 0;
-let animationID = 0;
-const threshold = 50;  // 슬라이드 동작을 위한 최소 이동 거리
-const totalSlides = images.length - 2;  // 복제된 슬라이드 제외
+const threshold = 50; // 슬라이드 변경을 위한 최소 이동 거리
 
 function updateSliderPosition() {
     sliderWrapper.style.transform = `translateX(-${currentIndex * 100}%)`;
 }
 
-function showImage(index) {
-    if (isTransitioning) return;
-    isTransitioning = true;
-    currentIndex = index;
-    sliderWrapper.style.transition = 'transform 0.5s ease-in-out';
-    updateSliderPosition();
-    sliderWrapper.addEventListener('transitionend', () => {
-        if (currentIndex === 0) {
-            sliderWrapper.style.transition = 'none';
-            currentIndex = totalSlides;
-            updateSliderPosition();
-        }
-        if (currentIndex === images.length - 1) {
-            sliderWrapper.style.transition = 'none';
-            currentIndex = 1;
-            updateSliderPosition();
-        }
-        dots.forEach((dot, i) => {
-            dot.classList.toggle('active', i === currentIndex - 1);
-        });
-        isTransitioning = false;
-    }, { once: true });
-}
-
 function nextImage() {
     if (currentIndex < images.length - 1) {
-        showImage(currentIndex + 1);
+        currentIndex++;
+        updateSliderPosition();
     }
 }
 
 function prevImage() {
     if (currentIndex > 0) {
-        showImage(currentIndex - 1);
-    }
-}
-
-dots.forEach((dot, index) => {
-    dot.addEventListener('click', () => {
-        showImage(index + 1);
-    });
-});
-
-rightArrow.addEventListener('click', nextImage);
-leftArrow.addEventListener('click', prevImage);
-
-sliderWrapper.addEventListener('pointerdown', touchStart);
-sliderWrapper.addEventListener('pointermove', touchMove);
-sliderWrapper.addEventListener('pointerup', touchEnd);
-sliderWrapper.addEventListener('pointercancel', touchEnd);
-sliderWrapper.addEventListener('pointerleave', touchEnd);
-
-function touchStart(event) {
-    startX = event.clientX || event.touches[0].clientX;
-    isDragging = true;
-    sliderWrapper.style.transition = 'none';
-    prevTranslate = currentTranslate;
-    animationID = requestAnimationFrame(animation);
-}
-
-function touchMove(event) {
-    if (!isDragging) return;
-    const currentX = event.clientX || event.touches[0].clientX;
-    const moveX = currentX - startX;
-    currentTranslate = prevTranslate + moveX;
-    sliderWrapper.style.transform = `translateX(${currentTranslate}px)`;
-}
-
-function touchEnd() {
-    cancelAnimationFrame(animationID);
-    isDragging = false;
-    const movedBy = currentTranslate - prevTranslate;
-    
-    if (movedBy < -threshold && currentIndex < images.length - 1) {
-        nextImage();
-    } else if (movedBy > threshold && currentIndex > 0) {
-        prevImage();
-    } else {
+        currentIndex--;
         updateSliderPosition();
     }
 }
 
-function animation() {
-    sliderWrapper.style.transform = `translateX(${currentTranslate}px)`;
-    if (isDragging) requestAnimationFrame(animation);
-}
+sliderWrapper.addEventListener('touchstart', (e) => {
+    startX = e.touches[0].clientX;
+    isDragging = true;
+});
 
-// 초기 슬라이더 위치 설정
+sliderWrapper.addEventListener('touchmove', (e) => {
+    if (!isDragging) return;
+    const moveX = e.touches[0].clientX - startX;
+    sliderWrapper.style.transform = `translateX(calc(-${currentIndex * 100}% + ${moveX}px))`;
+});
+
+sliderWrapper.addEventListener('touchend', (e) => {
+    const moveX = e.changedTouches[0].clientX - startX;
+    if (moveX < -threshold) {
+        nextImage();
+    } else if (moveX > threshold) {
+        prevImage();
+    } else {
+        updateSliderPosition();
+    }
+    isDragging = false;
+});
+
+dots.forEach((dot, index) => {
+    dot.addEventListener('click', () => {
+        currentIndex = index + 1;
+        updateSliderPosition();
+    });
+});
+
 updateSliderPosition();
 
 // 다음 우편번호 서비스 API를 사용하여 주소를 검색하고 입력 필드에 자동으로 채워줍니다.
