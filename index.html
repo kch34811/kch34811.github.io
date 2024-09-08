@@ -40,16 +40,41 @@
         </div>
 
         <div class="product-description">
-            <p>신선한 포도! 맛있고 당도가 높은 포도를 지금 예약하세요. 최상의 품질을 보장합니다.</p>
-            <p>주문 수량에 따라 가격이 다르게 책정됩니다. 주문 후 빠르게 배송해 드립니다.</p>
+            <h2>상품 설명</h2>
+            <div class="product-item">
+                <h3>2kg 3-4수 (25,000원)</h3>
+                <img src="img/2kg_box.jpg" alt="2kg box">
+                <img src="img/2kg_package.jpg" alt="2kg package">
+                <p class="note">*배송비 포함 가격입니다*</p>
+                <p class="note">*택배 배송 시 에어백포장하여 보내드립니다*</p>
+            </div>
+            <div class="product-item">
+                <h3>4kg 5-6수 (45,000원)</h3>
+                <img src="img/4kg_box.jpg" alt="4kg box">
+                <img src="img/4kg_package.jpg" alt="4kg package">
+                <p class="note">*배송비 포함 가격입니다*</p>
+                <p class="note">*택배 배송 시 에어백포장하여 보내드립니다*</p>
+            </div>
         </div>
 
         <!-- 구매하기 배너 -->
         <div class="buy-banner">
-            <a class="buy-button" onclick="showForm()">구매하기a</a>
+            <a class="buy-button" onclick="showForm()">구매하기</a>
         </div>
 
         <form id="reservation-form">
+            <h2>주문 상품 정보</h2>
+            <div id="order-items">
+                <div class="order-item">
+                    <label for="product-select">상품 선택:</label>
+                    <select id="product-select">
+                        <option value="2kg">2kg 3-4수</option>
+                        <option value="4kg">4kg 5-6수</option>
+                    </select>
+                    <button type="button" class="add-button" onclick="addItem()">추가</button>
+                </div>
+                <div id="selected-items"></div>
+            </div>
             <h2>주문자 정보</h2>
             <input type="text" id="order-name" name="order-name" placeholder="이름" required>
             <input type="tel" id="order-phone" name="order-phone" placeholder="연락처" required>
@@ -69,9 +94,9 @@
             <hr>
             <h2>주문 요약</h2>
             <div class="order-summary">
-                <p>상품가격: <span id="product-price">4,200원</span></p>
-                <p>배송비: <span id="shipping-fee">2,800원</span></p>
-                <p><strong>총 주문금액: <span id="total-price">7,000원</span></strong></p>
+                <p>상품가격: <span id="product-price">0원</span></p>
+                <p>배송비: <span id="shipping-fee">0원</span></p>
+                <p><strong>총 주문금액: <span id="total-price">0원</span></strong></p>
             </div>
             <button type="submit">예약하기</button>
         </form>

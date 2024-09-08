@@ -164,6 +164,80 @@ document.getElementById('same-as-order').addEventListener('change', function() {
     }
 });
 
+const itemPrices = {
+    "2kg": 25000,
+    "4kg": 45000
+};
+
+function addItem() {
+    const productSelect = document.getElementById('product-select');
+    const selectedItems = document.getElementById('selected-items');
+
+    const product = productSelect.value;
+    const productName = productSelect.options[productSelect.selectedIndex].text;
+
+    const itemElement = document.createElement('div');
+    itemElement.className = 'item';
+    itemElement.innerHTML = `
+        <div class="item-info">
+            <span class="item-name">${productName}</span>
+            <span class="item-price">${itemPrices[product].toLocaleString()}원</span>
+        </div>
+        <div class="quantity-controls">
+            <button onclick="decreaseQuantity(this)">-</button>
+            <input type="number" value="1" min="1" data-product="${product}" onchange="updatePrice(this)">
+            <button onclick="increaseQuantity(this)">+</button>
+        </div>
+        <button class="delete-button" onclick="deleteItem(this)">×</button>
+    `;
+
+    selectedItems.appendChild(itemElement);
+    updateTotalPrice();
+}
+
+function decreaseQuantity(button) {
+    const input = button.nextElementSibling;
+    if (input.value > 1) {
+        input.value--;
+        updatePrice(input);
+    }
+}
+
+function increaseQuantity(button) {
+    const input = button.previousElementSibling;
+    input.value++;
+    updatePrice(input);
+}
+
+function updatePrice(input) {
+    const product = input.getAttribute('data-product');
+    const quantity = parseInt(input.value);
+    const priceElement = input.closest('.item').querySelector('.item-price');
+    const totalPrice = itemPrices[product] * quantity;
+    priceElement.textContent = `${totalPrice.toLocaleString()}원`;
+    updateTotalPrice();
+}
+
+function deleteItem(button) {
+    const itemElement = button.parentElement;
+    itemElement.remove();
+    updateTotalPrice();
+}
+
+function updateTotalPrice() {
+    const selectedItems = document.getElementById('selected-items').children;
+    let totalPrice = 0;
+
+    Array.from(selectedItems).forEach(item => {
+        const priceText = item.querySelector('.item-price').textContent;
+        const price = parseInt(priceText.replace(/[^0-9]/g, ''));
+        totalPrice += price;
+    });
+
+    document.getElementById('product-price').textContent = `${totalPrice.toLocaleString()}원`;
+    document.getElementById('total-price').textContent = `${totalPrice.toLocaleString()}원`;
+}
+
 // 폼 제출 시 데이터를 서버로 전송합니다.
 document.getElementById('reservation-form').addEventListener('submit', function(event) {
     event.preventDefault();
